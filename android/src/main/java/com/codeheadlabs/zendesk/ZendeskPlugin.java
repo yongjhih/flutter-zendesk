@@ -41,6 +41,9 @@ public class ZendeskPlugin implements MethodCallHandler {
       case "startChat":
         handleStartChat(call, result);
         break;
+      case "initSupport":
+        showHelpCenter(call, result);
+        break;
       case "showHelpCenter":
         showHelpCenter(call, result);
         break;
@@ -52,6 +55,14 @@ public class ZendeskPlugin implements MethodCallHandler {
 
   private void handleInit(MethodCall call, Result result) {
     ZopimChat.init((String) call.argument("accountKey"));
+    result.success(true);
+  }
+
+  private void initSupport(MethodCall call, Result result) {
+    final String url = (String) call.argument("url");
+    final String appId = (String) call.argument("appId");
+    final String clientId = (String) call.argument("clientId");
+    Zendesk.INSTANCE.init(mRegistrar.activeContext(), url, appId, clientId);
     Support.INSTANCE.init(Zendesk.INSTANCE);
     result.success(true);
   }
@@ -79,10 +90,11 @@ public class ZendeskPlugin implements MethodCallHandler {
     mRegistrar.activeContext().startActivity(intent);
     result.success(true);
   }
+
   private void showHelpCenter(MethodCall call, Result result) {
-    //HelpCenterActivity.builder().show(mRegistrar.activeContext());
-    Intent intent = new Intent(mRegistrar.activeContext(), HelpCenterActivity.class);
-    mRegistrar.activeContext().startActivity(intent);
+    HelpCenterActivity.builder().show(mRegistrar.activeContext());
+    //Intent intent = new Intent(mRegistrar.activeContext(), HelpCenterActivity.class);
+    //mRegistrar.activeContext().startActivity(intent);
     result.success(true);
   }
 }
