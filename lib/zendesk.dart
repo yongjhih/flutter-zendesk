@@ -24,4 +24,8 @@ class Zendesk {
   Future<void> startChat() async {
     await _channel.invokeMethod('startChat');
   }
+
+  Future<void> showHelpCenter() async {
+    await _channel.invokeMethod('showHelpCenter');
+  }
 }

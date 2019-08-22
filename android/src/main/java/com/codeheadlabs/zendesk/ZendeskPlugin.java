@@ -5,6 +5,9 @@ import android.content.Intent;
 import com.zopim.android.sdk.api.ZopimChat;
 import com.zopim.android.sdk.model.VisitorInfo;
 import com.zopim.android.sdk.prechat.ZopimChatActivity;
+import zendesk.support.guide.HelpCenterActivity;
+import zendesk.support.Support;
+import zendesk.core.Zendesk;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -38,6 +41,9 @@ public class ZendeskPlugin implements MethodCallHandler {
       case "startChat":
         handleStartChat(call, result);
         break;
+      case "showHelpCenter":
+        showHelpCenter(call, result);
+        break;
       default:
         result.notImplemented();
         break;
@@ -46,6 +52,7 @@ public class ZendeskPlugin implements MethodCallHandler {
 
   private void handleInit(MethodCall call, Result result) {
     ZopimChat.init((String) call.argument("accountKey"));
+    Support.INSTANCE.init(Zendesk.INSTANCE);
     result.success(true);
   }
 
@@ -69,6 +76,12 @@ public class ZendeskPlugin implements MethodCallHandler {
 
   private void handleStartChat(MethodCall call, Result result) {
     Intent intent = new Intent(mRegistrar.activeContext(), ZopimChatActivity.class);
+    mRegistrar.activeContext().startActivity(intent);
+    result.success(true);
+  }
+  private void showHelpCenter(MethodCall call, Result result) {
+    //HelpCenterActivity.builder().show(mRegistrar.activeContext());
+    Intent intent = new Intent(mRegistrar.activeContext(), HelpCenterActivity.class);
     mRegistrar.activeContext().startActivity(intent);
     result.success(true);
   }
