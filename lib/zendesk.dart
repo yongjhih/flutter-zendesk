@@ -28,6 +28,42 @@ class Zendesk {
     });
   }
 
+  Future<void> setIdentity({
+    String name,
+    String email,
+  }) async {
+    final args = <String, String>{};
+    if (name != null) {
+      args.putIfAbsent('name', () => name);
+    }
+    if (email != null) {
+      args.putIfAbsent('email', () => email);
+    }
+    await _channel.invokeMethod('setIdentity', args);
+  }
+
+  Future<void> setVisitorInfoAndIdentity({
+    String name,
+    String email,
+    String phoneNumber,
+    String note,
+  }) async {
+    final args = <String, String>{};
+    if (name != null) {
+      args.putIfAbsent('name', () => name);
+    }
+    if (email != null) {
+      args.putIfAbsent('email', () => email);
+    }
+    if (phoneNumber != null) {
+      args.putIfAbsent('phoneNumber', () => phoneNumber);
+    }
+    if (note != null) {
+      args.putIfAbsent('note', () => note);
+    }
+    await _channel.invokeMethod('setVisitorInfoAndIdentity', args);
+  }
+
   Future<void> setVisitorInfo({
     String name,
     String email,

@@ -3,6 +3,7 @@ package com.codeheadlabs.zendesk;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.zopim.android.sdk.api.ZopimChat;
 import com.zopim.android.sdk.model.VisitorInfo;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 import zendesk.core.AnonymousIdentity;
+import zendesk.core.Identity;
 import zendesk.support.guide.ArticleUiConfig;
 import zendesk.support.guide.HelpCenterActivity;
 import zendesk.support.Support;
@@ -33,17 +35,17 @@ public class ZendeskPlugin implements MethodCallHandler {
   private final Registrar mRegistrar;
 
   /** Plugin registration. */
-  public static void registerWith(Registrar registrar) {
+  public static void registerWith(@NonNull final Registrar registrar) {
     final MethodChannel channel = new MethodChannel(registrar.messenger(), "com.codeheadlabs.zendesk");
     channel.setMethodCallHandler(new ZendeskPlugin(registrar));
   }
 
-  private ZendeskPlugin(Registrar registrar) {
+  private ZendeskPlugin(@NonNull final Registrar registrar) {
     this.mRegistrar = registrar;
   }
 
   @Override
-  public void onMethodCall(MethodCall call, @NonNull Result result) {
+  public void onMethodCall(@NonNull final MethodCall call, @NonNull Result result) {
     switch (call.method) {
       case "init":
         init(call, result);
@@ -53,6 +55,12 @@ public class ZendeskPlugin implements MethodCallHandler {
         break;
       case "setVisitorInfo":
         setVisitorInfo(call, result);
+        break;
+      case "setVisitorInfoAndIdentity":
+        setVisitorInfo(call, result);
+        break;
+      case "setIdentity":
+        setIdentity(call, result);
         break;
       case "startChat":
         startChat(call, result);
@@ -72,18 +80,19 @@ public class ZendeskPlugin implements MethodCallHandler {
     }
   }
 
-  private void init(MethodCall call, Result result) {
+  private void init(@NonNull final MethodCall call, @NonNull final Result result) {
     ZopimChat.init(call.<String>argument("accountKey"));
     result.success(true);
   }
 
-  private void initSupport(MethodCall call, Result result) {
+  private void initSupport(@NonNull final MethodCall call, @NonNull final Result result) {
     final String url = call.argument("url");
     final String appId = call.argument("appId");
     final String clientId = call.argument("clientId");
+
     if (url != null && appId != null)  {
       Zendesk.INSTANCE.init(mRegistrar.activeContext(), url, appId, clientId);
-      Zendesk.INSTANCE.setIdentity(new AnonymousIdentity());
+
       Support.INSTANCE.init(Zendesk.INSTANCE);
       result.success(true);
     } else {
@@ -91,8 +100,63 @@ public class ZendeskPlugin implements MethodCallHandler {
     }
   }
 
-  private void setVisitorInfo(MethodCall call, Result result) {
-    VisitorInfo.Builder builder = new VisitorInfo.Builder();
+  private void setIdentity(MethodCall call, Result result) {
+    final AnonymousIdentity.Builder builder = new AnonymousIdentity.Builder();
+
+    if (call.hasArgument("name")) {
+      builder.withNameIdentifier(call.<String>argument("name"));
+    }
+    if (call.hasArgument("email")) {
+      builder.withEmailIdentifier(call.<String>argument("email"));
+    }
+
+    Zendesk.INSTANCE.setIdentity(builder.build());
+
+    result.success(true);
+  }
+
+  private void setVisitorInfoAndIdentity(@NonNull final MethodCall call, @NonNull final Result result) {
+    final VisitorInfo.Builder builder = new VisitorInfo.Builder();
+
+    if (call.hasArgument("name")) {
+      builder.name(call.<String>argument("name"));
+    }
+    if (call.hasArgument("email")) {
+      builder.name(call.<String>argument("email"));
+    }
+    if (call.hasArgument("phoneNumber")) {
+      builder.phoneNumber(call.<String>argument("phoneNumber"));
+    }
+    if (call.hasArgument("note")) {
+      builder.note(call.<String>argument("note"));
+    }
+
+    final VisitorInfo visitorInfo = builder.build();
+
+    ZopimChat.setVisitorInfo(visitorInfo);
+    Zendesk.INSTANCE.setIdentity(toIdentity(visitorInfo));
+
+    result.success(true);
+  }
+
+  public static Identity toIdentity(@NonNull final VisitorInfo visitorInfo) {
+    final AnonymousIdentity.Builder builder = new AnonymousIdentity.Builder();
+    final String name = visitorInfo.getName();
+
+    if (name != null) {
+      builder.withNameIdentifier(name);
+    }
+    final String email = visitorInfo.getEmail();
+    if (email != null) {
+      builder.withEmailIdentifier(email);
+    }
+
+    return builder.build();
+  }
+
+  private void setVisitorInfo(@NonNull final MethodCall call, @NonNull final Result result) {
+    final VisitorInfo.Builder builder = new VisitorInfo.Builder();
+
     if (call.hasArgument("name")) {
       builder.name(call.<String>argument("name"));
     }
@@ -109,14 +173,16 @@ public class ZendeskPlugin implements MethodCallHandler {
     result.success(true);
   }
 
-  private void startChat(MethodCall call, Result result) {
-    Intent intent = new Intent(mRegistrar.activeContext(), ZopimChatActivity.class);
+  private void startChat(@NonNull final MethodCall call, @NonNull final Result result) {
+    final Intent intent = new Intent(mRegistrar.activeContext(), ZopimChatActivity.class);
+
     mRegistrar.activeContext().startActivity(intent);
+
     result.success(true);
   }
 
   @NonNull
-  public static List<Long> toLongs(@NonNull List<? extends Number> items) {
+  public static List<Long> toLongs(@NonNull final List<? extends Number> items) {
       final List<Long> res = new ArrayList<>();
       for (Number it : items) {
         res.add(it.longValue());
@@ -139,14 +205,16 @@ public class ZendeskPlugin implements MethodCallHandler {
    * @return {@code obj} if not {@code null}
    * @throws NullPointerException if {@code obj} is {@code null}
    */
-  public static <T> T requireNonNull(T obj) {
+  @NonNull
+  public static <T> T requireNonNull(@Nullable final T obj) {
     if (obj == null)
       throw new NullPointerException();
     return obj;
   }
 
-  private void showHelpCenter(MethodCall call, Result result) {
+  private void showHelpCenter(@NonNull final MethodCall call, @NonNull final Result result) {
     final HelpCenterUiConfig.Builder builder = HelpCenterActivity.builder();
+
     if (call.hasArgument("categories")) {
       final List<Number> items = call.argument("categories");
       builder.withArticlesForCategoryIds(toLongs(requireNonNull(items)));
@@ -166,8 +234,9 @@ public class ZendeskPlugin implements MethodCallHandler {
     result.success(true);
   }
 
-  private void request(MethodCall call, Result result) {
+  private void request(@NonNull final MethodCall call, @NonNull final Result result) {
     final RequestUiConfig.Builder builder = RequestActivity.builder();
+
     if (call.hasArgument("tags")) {
       builder.withTags(requireNonNull(call.<List<String>>argument("tags")));
     }
@@ -179,12 +248,14 @@ public class ZendeskPlugin implements MethodCallHandler {
     result.success(true);
   }
 
-  private void viewArticle(MethodCall call, Result result) {
+  private void viewArticle(@NonNull final MethodCall call, @NonNull final Result result) {
     if (call.hasArgument("id")) {
       final ArticleUiConfig.Builder builder = ViewArticleActivity.builder(requireNonNull(call.<Number>argument("id")).longValue());
+
       if (call.hasArgument("contactUsButtonVisible")) {
         builder.withContactUsButtonVisible(requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
       }
+
       builder.show(mRegistrar.activity());
       result.success(true);
     } else {
