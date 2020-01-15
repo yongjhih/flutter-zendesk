@@ -150,14 +150,17 @@ public class ZendeskPlugin implements MethodCallHandler {
     result.success(true);
   }
   private void viewArticle(MethodCall call, Result result) {
-    final ArticleUiConfig.Builder builder = ViewArticleActivity.builder();
+    if (call.hasArgument("id")) {
+      final ArticleUiConfig.Builder builder = ViewArticleActivity.builder(Objects.requireNonNull(call.<Long>argument("id")));
+      builder.show(mRegistrar.activity());
+      result.success(true);
+    } else {
+      result.error("NPE", "id == null", null);
+    }
     /*
     if (call.hasArgument("contactUsButtonVisible")) {
       builder.withContactUsButtonVisible(Objects.requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
     }
     */
-
-    builder.show(mRegistrar.activity());
-    result.success(true);
   }
 }

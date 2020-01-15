@@ -73,10 +73,11 @@ class Zendesk {
     });
   }
 
-  Future<void> viewArticle({
+  Future<void> viewArticle(int id, {
     bool contactUsButtonVisible,
   }) async {
     await _channel.invokeMethod('viewArticle', <String, dynamic>{
+      'id': id,
       'contactUsButtonVisible': contactUsButtonVisible,
     });
   }
