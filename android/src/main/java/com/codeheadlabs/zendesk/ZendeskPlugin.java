@@ -1,6 +1,7 @@
 package com.codeheadlabs.zendesk;
 
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,20 +12,19 @@ import com.zopim.android.sdk.prechat.ZopimChatActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import zendesk.core.AnonymousIdentity;
-import zendesk.core.Identity;
-import zendesk.support.guide.ArticleUiConfig;
-import zendesk.support.guide.HelpCenterActivity;
-import zendesk.support.Support;
-import zendesk.core.Zendesk;
+import java.util.Locale;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import zendesk.core.AnonymousIdentity;
+import zendesk.core.Identity;
+import zendesk.core.Zendesk;
+import zendesk.support.Support;
+import zendesk.support.guide.ArticleUiConfig;
+import zendesk.support.guide.HelpCenterActivity;
 import zendesk.support.guide.HelpCenterUiConfig;
 import zendesk.support.guide.ViewArticleActivity;
 import zendesk.support.request.RequestActivity;
@@ -57,7 +57,10 @@ public class ZendeskPlugin implements MethodCallHandler {
         setVisitorInfo(call, result);
         break;
       case "setVisitorInfoAndIdentity":
-        setVisitorInfo(call, result);
+        setVisitorInfoAndIdentity(call, result);
+        break;
+      case "setHelpCenterLocaleOverride":
+        setHelpCenterLocaleOverride(call, result);
         break;
       case "setIdentity":
         setIdentity(call, result);
@@ -100,7 +103,34 @@ public class ZendeskPlugin implements MethodCallHandler {
     }
   }
 
-  private void setIdentity(MethodCall call, Result result) {
+  @Nullable
+  public static Locale toLocale(@NonNull final String s) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      return Locale.forLanguageTag(s);
+    } else {
+      final Locale[] availableLocales = Locale.getAvailableLocales();
+      for (final Locale locale : availableLocales) {
+        if (locale.toString().equals(s)) {
+          return locale;
+        }
+      }
+      return null;
+    }
+  }
+
+  private void setHelpCenterLocaleOverride(@NonNull final MethodCall call, @NonNull final Result result) {
+    final String localeString = call.arguments();
+    final Locale locale = toLocale(localeString);
+    if (locale != null) {
+      Support.INSTANCE.setHelpCenterLocaleOverride(locale);
+      result.success(true);
+    } else {
+      result.error("NotFound", localeString + " not found", null);
+    }
+  }
+
+
+  private void setIdentity(@NonNull final MethodCall call, @NonNull final Result result) {
     final AnonymousIdentity.Builder builder = new AnonymousIdentity.Builder();
 
     if (call.hasArgument("name")) {
@@ -139,6 +169,7 @@ public class ZendeskPlugin implements MethodCallHandler {
     result.success(true);
   }
 
+  @NonNull
   public static Identity toIdentity(@NonNull final VisitorInfo visitorInfo) {
     final AnonymousIdentity.Builder builder = new AnonymousIdentity.Builder();
     final String name = visitorInfo.getName();

@@ -64,6 +64,12 @@ class Zendesk {
     await _channel.invokeMethod('setVisitorInfoAndIdentity', args);
   }
 
+  Future<void> setHelpCenterLocaleOverride(
+    String locale,
+  ) async {
+    await _channel.invokeMethod('setVisitorInfoAndIdentity', locale);
+  }
+
   Future<void> setVisitorInfo({
     String name,
     String email,
