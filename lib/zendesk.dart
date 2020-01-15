@@ -65,9 +65,11 @@ class Zendesk {
 
   Future<void> request({
     Set<String> tags,
+    String subject,
   }) async {
     await _channel.invokeMethod('request', <String, dynamic>{
       'tags': tags,
+      'subject': subject,
     });
   }
 
