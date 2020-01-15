@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath 'com.android.tools.build:gradle:3.5.0'
     }
 }
 
@@ -46,9 +46,11 @@ android {
         //implementation 'com.android.support:design:27.1.1'
 
 
-        api(group: 'com.zendesk', name: 'support', version: '3.0.1') {
+        // ref. https://developer.zendesk.com/embeddables/docs/android-support-sdk/nutshell
+        api(group: 'com.zendesk', name: 'support', version: '3.0.2') {
         }
-        api(group: 'com.zopim.android', name: 'sdk', version: '1.4.5') {
+        // ref. https://developer.zendesk.com/embeddables/docs/android-chat-sdk/gettingstarted
+        api(group: 'com.zopim.android', name: 'sdk', version: '1.4.8') {
         }
     }
 }
