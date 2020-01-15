@@ -34,12 +34,20 @@ class Zendesk {
     String phoneNumber,
     String note,
   }) async {
-    await _channel.invokeMethod('setVisitorInfo', <String, String>{
-      'name': name,
-      'email': email,
-      'phoneNumber': phoneNumber,
-      'note': note,
-    });
+    final args = <String, String>{};
+    if (name != null) {
+      args.putIfAbsent('name', () => name);
+    }
+    if (email != null) {
+      args.putIfAbsent('email', () => email);
+    }
+    if (phoneNumber != null) {
+      args.putIfAbsent('phoneNumber', () => phoneNumber);
+    }
+    if (note != null) {
+      args.putIfAbsent('note', () => note);
+    }
+    await _channel.invokeMethod('setVisitorInfo', args);
   }
 
   Future<void> startChat() async {
@@ -55,30 +63,44 @@ class Zendesk {
     Set<String> labels,
     bool contactUsButtonVisible,
   }) async {
-    await _channel.invokeMethod('showHelpCenter', <String, dynamic>{
-      'categories': categories,
-      'sections': sections,
-      'labels': labels,
-      'contactUsButtonVisible': contactUsButtonVisible,
-    });
+    final args = <String, dynamic>{};
+    if (categories != null) {
+      args.putIfAbsent('categories', () => categories);
+    }
+    if (sections != null) {
+      args.putIfAbsent('sections', () => sections);
+    }
+    if (labels != null) {
+      args.putIfAbsent('labels', () => labels);
+    }
+    if (contactUsButtonVisible != null) {
+      args.putIfAbsent('contactUsButtonVisible', () => contactUsButtonVisible);
+    }
+    await _channel.invokeMethod('showHelpCenter', args);
   }
 
   Future<void> request({
     Set<String> tags,
     String subject,
   }) async {
-    await _channel.invokeMethod('request', <String, dynamic>{
-      'tags': tags,
-      'subject': subject,
-    });
+    final args = <String, dynamic>{};
+    if (tags != null) {
+      args.putIfAbsent('tags', () => tags);
+    }
+    if (subject != null) {
+      args.putIfAbsent('subject', () => subject);
+    }
+    await _channel.invokeMethod('request', args);
   }
 
   Future<void> viewArticle(int id, {
     bool contactUsButtonVisible,
   }) async {
-    await _channel.invokeMethod('viewArticle', <String, dynamic>{
-      'id': id,
-      'contactUsButtonVisible': contactUsButtonVisible,
-    });
+    final args = <String, dynamic>{};
+    args.putIfAbsent('id', () => id);
+    if (contactUsButtonVisible != null) {
+      args.putIfAbsent('contactUsButtonVisible', () => contactUsButtonVisible);
+    }
+    await _channel.invokeMethod('viewArticle', args);
   }
 }
