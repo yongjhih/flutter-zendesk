@@ -8,6 +8,7 @@ import com.zopim.android.sdk.api.ZopimChat;
 import com.zopim.android.sdk.model.VisitorInfo;
 import com.zopim.android.sdk.prechat.ZopimChatActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -93,16 +94,16 @@ public class ZendeskPlugin implements MethodCallHandler {
   private void setVisitorInfo(MethodCall call, Result result) {
     VisitorInfo.Builder builder = new VisitorInfo.Builder();
     if (call.hasArgument("name")) {
-      builder.name((String) call.argument("name"));
+      builder.name(call.<String>argument("name"));
     }
     if (call.hasArgument("email")) {
-      builder.name((String) call.argument("email"));
+      builder.name(call.<String>argument("email"));
     }
     if (call.hasArgument("phoneNumber")) {
-      builder.phoneNumber((String) call.argument("phoneNumber"));
+      builder.phoneNumber(call.<String>argument("phoneNumber"));
     }
     if (call.hasArgument("note")) {
-      builder.note((String) call.argument("note"));
+      builder.note(call.<String>argument("note"));
     }
     ZopimChat.setVisitorInfo(builder.build());
     result.success(true);
@@ -114,13 +115,23 @@ public class ZendeskPlugin implements MethodCallHandler {
     result.success(true);
   }
 
+  public static List<Long> toLongs(List<Integer> items) {
+      final List<Long> res = new ArrayList<>();
+      for (Integer it : items) {
+        res.add(it.longValue());
+      }
+      return res;
+  }
+
   private void showHelpCenter(MethodCall call, Result result) {
     final HelpCenterUiConfig.Builder builder = HelpCenterActivity.builder();
     if (call.hasArgument("categories")) {
-      builder.withArticlesForCategoryIds(Objects.requireNonNull(call.<List<Long>>argument("categories")));
+      final List<Integer> items = Objects.requireNonNull(call.<List<Integer>>argument("categories"));
+      builder.withArticlesForCategoryIds(toLongs(items));
     }
     if (call.hasArgument("sections")) {
-        builder.withArticlesForSectionIds(Objects.requireNonNull(call.<List<Long>>argument("sections")));
+      final List<Integer> items = Objects.requireNonNull(call.<List<Integer>>argument("sections"));
+        builder.withArticlesForSectionIds(toLongs(items));
     }
     if (call.hasArgument("labels")) {
       builder.withLabelNames(Objects.requireNonNull(call.<List<String>>argument("labels")));
@@ -147,7 +158,7 @@ public class ZendeskPlugin implements MethodCallHandler {
   }
   private void viewArticle(MethodCall call, Result result) {
     if (call.hasArgument("id")) {
-      final ArticleUiConfig.Builder builder = ViewArticleActivity.builder(Objects.requireNonNull(call.<Long>argument("id")));
+      final ArticleUiConfig.Builder builder = ViewArticleActivity.builder(Objects.requireNonNull(call.<Integer>argument("id")).longValue());
       if (call.hasArgument("contactUsButtonVisible")) {
         builder.withContactUsButtonVisible(Objects.requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
       }
