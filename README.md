@@ -2,9 +2,29 @@
 
 Flutter interface for Zendesk Mobile SDK
 
-## Getting Started
+## Installation
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+Make sure the theme is applied AppCompat, for example:
 
-For help on editing plugin code, view the [documentation](https://flutter.io/developing-packages/#edit-plugin-package).
+```xml
+    <style name="ZendeskTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+        <activity android:name="zendesk.support.guide.HelpCenterActivity"
+            android:exported="true"
+            android:theme="@style/ZendeskTheme" />
+
+        <activity android:name="zendesk.support.guide.ViewArticleActivity"
+            android:theme="@style/ZendeskTheme" />
+
+        <activity android:name="zendesk.support.requestlist.RequestListActivity"
+            android:theme="@style/ZendeskTheme" />
+
+        <activity android:name="zendesk.support.request.RequestActivity"
+            android:theme="@style/ZendeskTheme" />
+```
+
+
