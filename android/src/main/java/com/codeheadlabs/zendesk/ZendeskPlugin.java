@@ -116,6 +116,7 @@ public class ZendeskPlugin implements MethodCallHandler {
 
   private void showHelpCenter(MethodCall call, Result result) {
     final HelpCenterUiConfig.Builder builder = HelpCenterActivity.builder();
+    /*
     if (call.hasArgument("categories")) {
       builder.withArticlesForCategoryIds(Objects.requireNonNull(call.<List<Long>>argument("categories")));
     }
@@ -128,6 +129,7 @@ public class ZendeskPlugin implements MethodCallHandler {
     if (call.hasArgument("contactUsButtonVisible")) {
       builder.withContactUsButtonVisible(Objects.requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
     }
+    */
 
     builder.show(mRegistrar.activity());
     result.success(true);
@@ -135,9 +137,11 @@ public class ZendeskPlugin implements MethodCallHandler {
 
   private void request(MethodCall call, Result result) {
     final RequestUiConfig.Builder builder = RequestActivity.builder();
+    /*
     if (call.hasArgument("tags")) {
       builder.withTags(Objects.requireNonNull(call.<List<String>>argument("tags")));
     }
+    */
     if (call.hasArgument("subject")) {
       builder.withRequestSubject(Objects.requireNonNull(call.<String>argument("subject")));
     }
@@ -147,9 +151,11 @@ public class ZendeskPlugin implements MethodCallHandler {
   }
   private void viewArticle(MethodCall call, Result result) {
     final ArticleUiConfig.Builder builder = ViewArticleActivity.builder();
+    /*
     if (call.hasArgument("contactUsButtonVisible")) {
       builder.withContactUsButtonVisible(Objects.requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
     }
+    */
 
     builder.show(mRegistrar.activity());
     result.success(true);
