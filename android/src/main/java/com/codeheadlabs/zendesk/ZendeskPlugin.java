@@ -1,7 +1,8 @@
 package com.codeheadlabs.zendesk;
 
 import android.content.Intent;
-import android.os.Build;
+
+import androidx.annotation.NonNull;
 
 import com.zopim.android.sdk.api.ZopimChat;
 import com.zopim.android.sdk.model.VisitorInfo;
@@ -41,7 +42,7 @@ public class ZendeskPlugin implements MethodCallHandler {
   }
 
   @Override
-  public void onMethodCall(MethodCall call, Result result) {
+  public void onMethodCall(MethodCall call, @NonNull Result result) {
     switch (call.method) {
       case "init":
         init(call, result);
@@ -71,7 +72,7 @@ public class ZendeskPlugin implements MethodCallHandler {
   }
 
   private void init(MethodCall call, Result result) {
-    ZopimChat.init((String) call.argument("accountKey"));
+    ZopimChat.init(call.<String>argument("accountKey"));
     result.success(true);
   }
 
