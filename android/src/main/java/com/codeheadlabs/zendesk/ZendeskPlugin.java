@@ -115,29 +115,51 @@ public class ZendeskPlugin implements MethodCallHandler {
     result.success(true);
   }
 
-  public static List<Long> toLongs(List<Integer> items) {
+  @NonNull
+  public static List<Long> toLongs(@NonNull List<? extends Number> items) {
       final List<Long> res = new ArrayList<>();
-      for (Integer it : items) {
+      for (Number it : items) {
         res.add(it.longValue());
       }
       return res;
   }
 
+  /**
+   * Checks that the specified object reference is not {@code null}. This
+   * method is designed primarily for doing parameter validation in methods
+   * and constructors, as demonstrated below:
+   * <blockquote><pre>
+   * public Foo(Bar bar) {
+   *     this.bar = Objects.requireNonNull(bar);
+   * }
+   * </pre></blockquote>
+   *
+   * @param obj the object reference to check for nullity
+   * @param <T> the type of the reference
+   * @return {@code obj} if not {@code null}
+   * @throws NullPointerException if {@code obj} is {@code null}
+   */
+  public static <T> T requireNonNull(T obj) {
+    if (obj == null)
+      throw new NullPointerException();
+    return obj;
+  }
+
   private void showHelpCenter(MethodCall call, Result result) {
     final HelpCenterUiConfig.Builder builder = HelpCenterActivity.builder();
     if (call.hasArgument("categories")) {
-      final List<Integer> items = Objects.requireNonNull(call.<List<Integer>>argument("categories"));
-      builder.withArticlesForCategoryIds(toLongs(items));
+      final List<Number> items = call.argument("categories");
+      builder.withArticlesForCategoryIds(toLongs(requireNonNull(items)));
     }
     if (call.hasArgument("sections")) {
-      final List<Integer> items = Objects.requireNonNull(call.<List<Integer>>argument("sections"));
-        builder.withArticlesForSectionIds(toLongs(items));
+      final List<Number> items = call.argument("sections");
+      builder.withArticlesForSectionIds(toLongs(requireNonNull(items)));
     }
     if (call.hasArgument("labels")) {
-      builder.withLabelNames(Objects.requireNonNull(call.<List<String>>argument("labels")));
+      builder.withLabelNames(requireNonNull(call.<List<String>>argument("labels")));
     }
     if (call.hasArgument("contactUsButtonVisible")) {
-      builder.withContactUsButtonVisible(Objects.requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
+      builder.withContactUsButtonVisible(requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
     }
 
     builder.show(mRegistrar.activity());
@@ -147,20 +169,21 @@ public class ZendeskPlugin implements MethodCallHandler {
   private void request(MethodCall call, Result result) {
     final RequestUiConfig.Builder builder = RequestActivity.builder();
     if (call.hasArgument("tags")) {
-      builder.withTags(Objects.requireNonNull(call.<List<String>>argument("tags")));
+      builder.withTags(requireNonNull(call.<List<String>>argument("tags")));
     }
     if (call.hasArgument("subject")) {
-      builder.withRequestSubject(Objects.requireNonNull(call.<String>argument("subject")));
+      builder.withRequestSubject(requireNonNull(call.<String>argument("subject")));
     }
 
     builder.show(mRegistrar.activity());
     result.success(true);
   }
+
   private void viewArticle(MethodCall call, Result result) {
     if (call.hasArgument("id")) {
-      final ArticleUiConfig.Builder builder = ViewArticleActivity.builder(Objects.requireNonNull(call.<Integer>argument("id")).longValue());
+      final ArticleUiConfig.Builder builder = ViewArticleActivity.builder(requireNonNull(call.<Number>argument("id")).longValue());
       if (call.hasArgument("contactUsButtonVisible")) {
-        builder.withContactUsButtonVisible(Objects.requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
+        builder.withContactUsButtonVisible(requireNonNull(call.<Boolean>argument("contactUsButtonVisible")));
       }
       builder.show(mRegistrar.activity());
       result.success(true);
